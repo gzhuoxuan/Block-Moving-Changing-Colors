@@ -1,0 +1,92 @@
+import pygame
+#we need to create the venv first, the lib for pygame
+#go to the terminal type "pip install pygame"
+#building a rectangle that moves when u input wasd and space
+
+class Square():
+    def __init__(self, x, y, size, speed, color):#self is for object, xy is for the coordinates
+        self.rect = pygame.Rect(x, y, size, size)#the size is for width and height, so there is two
+        self.speed = speed
+        self.colors = [(200,0,0), (200,200,0), (0, 200, 0), (0, 0, 200), (160, 32, 240)] #Red, yellow, green, blue, purple
+        self.color_index = 0
+        self.color = self.colors[self.color_index]
+        self.color = color
+
+    #Handle Key Input
+    def handle_keys(self):
+        keys = pygame.key.get_pressed()#it will tell which key is pressed and store it in the variable keys
+        #Operations
+        if keys[pygame.K_a] or keys[pygame.K_LEFT]:
+            self.rect.x -= self.speed
+        if keys[pygame.K_d] or keys[pygame.K_RIGHT]:
+            self.rect.x += self.speed
+        if keys[pygame.K_w] or keys[pygame.K_UP]:
+            self.rect.y -= self.speed
+        if keys[pygame.K_s] or keys[pygame.K_DOWN]:
+            self.rect.y += self.speed
+
+    def change_colors(self):
+        self.color_index = (self.color_index + 1) % len(self.colors)
+        self.color = self.colors[self.color_index]
+    #draw the square
+    def draw(self, surface):
+          pygame.draw.rect(surface, self.color, self.rect)
+
+#game engine as its own class
+class Game:
+    def __init__(self):
+        #to boot up the pygame obj
+        pygame.init()
+        #set the size of screen
+        self.width = 2560
+        self.height = 1600
+        self.screen = pygame.display.set_mode((self.width, self.height))#setting the screen size
+        pygame.display.set_caption("OOP Pygame - Moving Square")
+
+        #the clock of the game***IMPORTANT
+        self.clock = pygame.time.Clock()
+        self.running = True #to determine whether or not to start the game 
+
+        self.player = Square(
+              x = 200,
+              y = 100,
+              size = 100,
+              speed = 20,
+              color = (200, 0, 0)
+        )
+
+    def run(self):
+            while self.running == True:
+                #Check for Events
+                for event in pygame.event.get():#getting the user input
+                        if event.type == pygame.KEYDOWN:
+                            if event.key == pygame.K_ESCAPE:
+                                self.running = False
+
+                            elif event.type == pygame.KEYDOWN:
+                                if event.key == pygame.K_SPACE:
+                                  self.player.change_colors()
+                #Movement
+                self.player.handle_keys()
+
+                #Handle Boundaries
+                if self.player.rect.left < 0:
+                    self.player.rect.left = 0
+                if self.player.rect.right > self.width:
+                    self.player.rect.right = self.width
+                if self.player.rect.bottom > self.height:
+                    self.player.rect.bottom = self.height
+                if self.player.rect.top < 0:
+                    self.player.rect.top = 0
+                self.screen.fill((0,0,0))
+                self.player.draw(self.screen)
+
+                pygame.display.flip()#put the display from memory to the screen
+                self.clock.tick(130)
+
+            pygame.quit()
+
+#Program Entry
+if __name__ == "__main__":#it creates a secerete variable when python is run, its called __name__ that has the value of __(file name)__
+     game = Game()
+     game.run()
